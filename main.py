@@ -62,7 +62,7 @@ def main_per_cat(cfg, cat, log, ID_start):
 			# tracking by detection
 			dets_frame = get_frame_det(seq_dets, frame)
 			since = time.time()
-			results, affi = tracker.track(dets_frame, frame, seq_name)		
+			results, affi = tracker.track(dets_frame, frame, seq_name)
 			total_time += time.time() - since
 
 			# saving affinity matrix, between the past frame and current frame
@@ -81,6 +81,8 @@ def main_per_cat(cfg, cat, log, ID_start):
 					save_affinity(affi, save_affi_vis)
 
 			# saving trajectories, loop over each hypothesis
+			print_log("hello", log=log, display=False)
+
 			for hypo in range(cfg.num_hypo):
 				save_trk_file = os.path.join(save_trk_dir[hypo], '%06d.txt' % frame)
 				save_trk_file = open(save_trk_file, 'w')

@@ -76,20 +76,20 @@ def get_saving_dir(eval_dir_dict, seq_name, save_dir, num_hypo):
 def save_results(res, save_trk_file, eval_file, det_id2str, frame, score_threshold):
 
 	# box3d in the format of h, w, l, x, y, z, theta in camera coordinate
-	bbox3d_tmp, id_tmp, ori_tmp, type_tmp, bbox2d_tmp_trk, conf_tmp = \
-		res[0:7], res[7], res[8], det_id2str[res[9]], res[10:14], res[14] 		
+	bbox3d_tmp, id_tmp, ori_tmp, type_tmp, bbox2d_tmp_trk, conf_tmp, velo = \
+		res[0:7], res[7], res[8], det_id2str[res[9]], res[10:14], res[14], res[15:18] 		
 	 
 	# save in detection format with track ID, can be used for dection evaluation and tracking visualization
-	str_to_srite = '%s -1 -1 %f %f %f %f %f %f %f %f %f %f %f %f %f %d\n' % (type_tmp, ori_tmp,
+	str_to_srite = '%s -1 -1 %f %f %f %f %f %f %f %f %f %f %f %f %f %d %f %f %f\n' % (type_tmp, ori_tmp,
 		bbox2d_tmp_trk[0], bbox2d_tmp_trk[1], bbox2d_tmp_trk[2], bbox2d_tmp_trk[3], 
-		bbox3d_tmp[0], bbox3d_tmp[1], bbox3d_tmp[2], bbox3d_tmp[3], bbox3d_tmp[4], bbox3d_tmp[5], bbox3d_tmp[6], conf_tmp, id_tmp)
+		bbox3d_tmp[0], bbox3d_tmp[1], bbox3d_tmp[2], bbox3d_tmp[3], bbox3d_tmp[4], bbox3d_tmp[5], bbox3d_tmp[6], conf_tmp, id_tmp, velo[0] if len(velo) > 0 else 0, velo[1] if len(velo) > 0 else 0, velo[2] if len(velo) > 0 else 0)
 	save_trk_file.write(str_to_srite)
 
 	# save in tracking format, for 3D MOT evaluation
 	if conf_tmp >= score_threshold:
-		str_to_srite = '%d %d %s 0 0 %f %f %f %f %f %f %f %f %f %f %f %f %f\n' % (frame, id_tmp, 
+		str_to_srite = '%d %d %s 0 0 %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f\n' % (frame, id_tmp, 
 			type_tmp, ori_tmp, bbox2d_tmp_trk[0], bbox2d_tmp_trk[1], bbox2d_tmp_trk[2], bbox2d_tmp_trk[3], 
-			bbox3d_tmp[0], bbox3d_tmp[1], bbox3d_tmp[2], bbox3d_tmp[3], bbox3d_tmp[4], bbox3d_tmp[5], bbox3d_tmp[6], conf_tmp)
+			bbox3d_tmp[0], bbox3d_tmp[1], bbox3d_tmp[2], bbox3d_tmp[3], bbox3d_tmp[4], bbox3d_tmp[5], bbox3d_tmp[6], conf_tmp, velo[0] if len(velo) > 0 else 0, velo[1] if len(velo) > 0 else 0, velo[2] if len(velo) > 0 else 0)
 		eval_file.write(str_to_srite)
 
 def save_affinity(affi_data, save_path):

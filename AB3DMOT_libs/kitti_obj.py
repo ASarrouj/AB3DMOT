@@ -45,6 +45,7 @@ class Object_3D(object):
                 data[8], data[9], data[10], data[11], data[12], data[13] 
             
             self.ry = data[14]  # yaw angle (around Y-axis in camera coordinates) [-pi..pi]
+            self.velo_3d = [data[17], data[18], data[19]]
             
             # update score/ID
             if len(data) > 15: self.s = float(data[15])

@@ -31,7 +31,7 @@ class Tracklet_3D(object):
         obj = Object_3D(obj_type=obj_type, trunc=rest[0], occ=rest[1], alpha=rest[2], \
             xmin=rest[3], ymin=rest[4], xmax=rest[5], ymax=rest[6], \
             h=rest[7], w=rest[8], l=rest[9], x=rest[10], y=rest[11], z=rest[12], ry=rest[13], \
-            s=rest[14], id=obj_id)
+            s=rest[14], id=obj_id, velo_3d=[rest[15], rest[16], rest[17]])
 
         # create entry for this frame and this ID
         if frame not in self.data:

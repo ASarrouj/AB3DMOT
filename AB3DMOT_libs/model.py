@@ -207,7 +207,6 @@ class AB3DMOT(object):
 
 		trks = []
 		for t in range(len(self.trackers)):
-			
 			# propagate locations
 			kf_tmp = self.trackers[t]
 			if kf_tmp.id == self.debug_id:
@@ -220,7 +219,6 @@ class AB3DMOT(object):
 				print('After prediction')
 				print(kf_tmp.kf.x.reshape((-1)))
 			kf_tmp.kf.x[3] = self.within_range(kf_tmp.kf.x[3])
-
 			# update statistics
 			kf_tmp.time_since_update += 1 		
 			trk_tmp = kf_tmp.kf.x.reshape((-1))[:7]
@@ -296,9 +294,8 @@ class AB3DMOT(object):
 			# change format from [x,y,z,theta,l,w,h] to [h,w,l,x,y,z,theta]
 			d = Box3D.array2bbox(trk.kf.x[:7].reshape((7, )))     # bbox location self
 			d = Box3D.bbox2array_raw(d)
-
 			if ((trk.time_since_update < self.max_age) and (trk.hits >= self.min_hits or self.frame_count <= self.min_hits)):      
-				results.append(np.concatenate((d, [trk.id], trk.info)).reshape(1, -1)) 		
+				results.append(np.concatenate((d, [trk.id], trk.info, trk.get_velocity().reshape(-1))).reshape(1, -1)) 		
 			num_trks -= 1
 
 			# deadth, remove dead tracklet

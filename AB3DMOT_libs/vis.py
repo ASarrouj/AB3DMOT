@@ -57,7 +57,8 @@ def vis_obj(box, img, calib, hw, color_tmp=None, str_vis=None, thickness=4, id_h
 	# draw text
 	if draw and obj_pts_2d is not None and str_vis is not None:
 		x1, y1 = int(obj_pts_2d[4, 0]), int(obj_pts_2d[4, 1])
-		img = cv2.putText(img, str_vis, (x1+5, y1-10), cv2.FONT_HERSHEY_TRIPLEX, 0.5, color_tmp, int(thickness/2))
+		img = cv2.putText(img, str_vis[0], (x1+5, y1-20), cv2.FONT_HERSHEY_TRIPLEX, 0.4, color_tmp, int(thickness/2))
+		img = cv2.putText(img, str_vis[1], (x1+5, y1-5), cv2.FONT_HERSHEY_TRIPLEX, 0.35, color_tmp, int(thickness/2))
 
 	# highlight
 	if err_type is not None:
@@ -86,7 +87,7 @@ def vis_obj(box, img, calib, hw, color_tmp=None, str_vis=None, thickness=4, id_h
 	return img
 
 def vis_image_with_obj(img, obj_res, obj_gt, calib, hw, save_path, h_thres=0, \
-	color_type='det', id_hl=None, repeat=60):
+	color_type='trk', id_hl=None, repeat=60):
 	# obj_res, obj_gt, a list of object3D class instances
 	# h_thres: height threshold for filtering objects
 	# id_hl: ID to be highlighted, color_type: ['det', 'trk'], trk means different color for each one
@@ -102,8 +103,14 @@ def vis_image_with_obj(img, obj_res, obj_gt, calib, hw, save_path, h_thres=0, \
 
 			# obtain object color and thickness
 			if color_type == 'trk':   
-				color_id = obj.id 		# vary across objects
-				thickness = 5
+				# color_id = obj.id 		# vary across objects
+				if obj.type == 'Car':
+					color_id = 0
+				elif obj.type == 'Pedestrian':
+					color_id = 10
+				else:
+					color_id = 20
+				thickness = 1
 			elif color_type == 'det': 
 				if id_hl is not None and obj.id in id_hl:
 					# color_id = 29 		# fixed, red for highlighted errors
@@ -116,7 +123,8 @@ def vis_image_with_obj(img, obj_res, obj_gt, calib, hw, save_path, h_thres=0, \
 
 			# get miscellaneous information
 			box_tmp = obj.get_box3D()
-			str_vis = 'ID: %d' % obj.id
+			fps=10
+			str_vis = ['ID: %d' % obj.id, 'V: (%.2f, %.2f, %.2f)' % (obj.velo_3d[0]*fps,obj.velo_3d[1]*fps,obj.velo_3d[2]*fps)]
 			
 			# retrieve index in the id_hl dict
 			if id_hl is not None and obj.id in id_hl:
