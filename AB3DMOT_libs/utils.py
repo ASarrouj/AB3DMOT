@@ -30,12 +30,14 @@ def get_subfolder_seq(dataset, split):
 		det_id2str = {1: 'Pedestrian', 2: 'Car', 3: 'Cyclist'}
 		
 		if split == 'val': subfolder = 'training' 
-		elif split == 'test': subfolder = 'testing' 
+		elif split == 'test': subfolder = 'testing'
+		elif split == 'train': subfolder = 'training' 
 		else: assert False, 'error'
 
 		hw = {'image': (375, 1242), 'lidar': (720, 1920)}
 		
-		if split == 'train': seq_eval = ['0000', '0002', '0003', '0004', '0005', '0007', '0009', '0011', '0017', '0020']         # train
+		if split == 'train': seq_eval = ['0000', '0011', '0017']         # train
+		# if split == 'train': seq_eval = ['0000', '0002', '0003', '0004', '0005', '0007', '0009', '0011', '0017', '0020']         # train
 		if split == 'val':   seq_eval = ['0001', '0006', '0008', '0010', '0012', '0013', '0014', '0015', '0016', '0018', '0019']    # val
 		if split == 'test':  seq_eval  = ['%04d' % i for i in range(29)]
 	
@@ -64,7 +66,8 @@ def get_threshold(dataset, det_name):
 	# obtained by observing the threshold achieving the highest MOTA on the validation set
 
 	if dataset == 'KITTI':
-		if det_name == 'pointrcnn': return {'Car': 3.240738, 'Pedestrian': 2.683133, 'Cyclist': 3.645319}
+		# if det_name == 'pointrcnn' or det_name == 'maskrcnn': return {'Car': 3.240738, 'Pedestrian': 2.683133, 'Cyclist': 3.645319}
+		if det_name == 'pointrcnn' or det_name == 'maskrcnn' or det_name == 'bbox': return {'Car': 0.49, 'Pedestrian': 0.49, 'Cyclist': 0.49}
 		else: assert False, 'error, detection method not supported for getting threshold' % det_name
 	elif dataset == 'nuScenes':
 		if det_name == 'megvii': 
@@ -126,7 +129,7 @@ def find_all_frames(root_dir, subset, data_suffix, seq_list):
 			data_dir = os.path.join(root_dir, subset_tmp, 'trk_withid'+data_suffix, seq_tmp)			# pointrcnn_ped
 			if not is_path_exists(data_dir):
 				print('%s dir not exist' % data_dir)
-				assert False, 'error'
+				continue
 
 			# extract frame string from this category
 			frame_list, _ = load_list_from_folder(data_dir)

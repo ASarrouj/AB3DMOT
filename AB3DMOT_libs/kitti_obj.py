@@ -42,7 +42,7 @@ class Object_3D(object):
 
             # extract 3d bounding box information
             self.h, self.w, self.l, self.x, self.y, self.z = \
-                data[8], data[9], data[10], data[11], data[12], data[13] 
+                data[8], data[9], data[10], -data[12], -data[13] + 1, data[11] 
             
             self.ry = data[14]  # yaw angle (around Y-axis in camera coordinates) [-pi..pi]
             self.velo_3d = [data[17], data[18], data[19]]

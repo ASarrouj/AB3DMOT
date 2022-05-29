@@ -19,7 +19,6 @@ def parse_args():
     return args
 
 def main_per_cat(cfg, cat, log, ID_start):
-
 	# get data-cat-split specific path
 	result_sha = '%s_%s_%s' % (cfg.det_name, cat, cfg.split)
 	det_root = os.path.join('./data', cfg.dataset, 'detection', result_sha)
@@ -37,7 +36,7 @@ def main_per_cat(cfg, cat, log, ID_start):
 	total_time, total_frames = 0.0, 0
 	for seq_name in seq_eval:
 		seq_file = os.path.join(det_root, seq_name+'.txt')
-		seq_dets, flag = load_detection(seq_file) 				# load detection
+		seq_dets, flag = load_detection(seq_file)				# load detection
 		if not flag: continue									# no detection
 
 		# create folders for saving
@@ -98,9 +97,12 @@ def main_per_cat(cfg, cat, log, ID_start):
 			eval_file_dict[index].close()
 			ID_start = max(ID_start, tracker.ID_count[index])
 
-	print_log('%s, %25s: %4.f seconds for %5d frames or %6.1f FPS, metric is %s = %.2f' % \
-		(cfg.dataset, result_sha, total_time, total_frames, total_frames / total_time, \
-		tracker.metric, tracker.thres), log=log)
+	if total_frames != 0:
+		print_log('%s, %25s: %4.f seconds for %5d frames or %6.1f FPS, metric is %s = %.2f' % \
+			(cfg.dataset, result_sha, total_time, total_frames, total_frames / total_time, \
+			tracker.metric, tracker.thres), log=log)
+	else:
+		print_log('%s, %25s: No objects for any frames' % (cfg.dataset, result_sha), log=log)
 	
 	return ID_start
 

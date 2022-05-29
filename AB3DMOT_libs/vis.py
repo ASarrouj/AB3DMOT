@@ -56,7 +56,9 @@ def vis_obj(box, img, calib, hw, color_tmp=None, str_vis=None, thickness=4, id_h
 
 	# draw text
 	if draw and obj_pts_2d is not None and str_vis is not None:
-		x1, y1 = int(obj_pts_2d[4, 0]), int(obj_pts_2d[4, 1])
+		x1, y1 = int(np.min(obj_pts_2d[:, 0])), int(np.min(obj_pts_2d[:, 1]))
+		if x1 < 0:
+			x1 = 0
 		img = cv2.putText(img, str_vis[0], (x1+5, y1-20), cv2.FONT_HERSHEY_TRIPLEX, 0.4, color_tmp, int(thickness/2))
 		img = cv2.putText(img, str_vis[1], (x1+5, y1-5), cv2.FONT_HERSHEY_TRIPLEX, 0.35, color_tmp, int(thickness/2))
 
@@ -100,7 +102,6 @@ def vis_image_with_obj(img, obj_res, obj_gt, calib, hw, save_path, h_thres=0, \
 	for obj in obj_res:
 		depth = obj.z
 		if depth >= 2: 		# check in front of camera
-
 			# obtain object color and thickness
 			if color_type == 'trk':   
 				# color_id = obj.id 		# vary across objects

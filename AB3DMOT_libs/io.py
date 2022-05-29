@@ -23,7 +23,7 @@ def get_frame_det(dets_all, frame):
 	
 	# get irrelevant information associated with an object, not used for associationg
 	ori_array = dets_all[dets_all[:, 0] == frame, -1].reshape((-1, 1))		# orientation
-	other_array = dets_all[dets_all[:, 0] == frame, 1:7] 					# other information, e.g, 2D box, ...
+	other_array = dets_all[dets_all[:, 0] == frame, 1:7]
 	additional_info = np.concatenate((ori_array, other_array), axis=1)		
 
 	# get 3D box
