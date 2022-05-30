@@ -56,6 +56,11 @@ def get_subfolder_seq(dataset, split):
 
 		data_root = os.path.join(file_path, '../data/nuScenes/nuKITTI') 	# path containing the nuScenes-converted KITTI root
 
+	elif dataset == 'cepton':
+		det_id2str = {1: 'Pedestrian', 2: 'Car', 3: 'Cyclist'}
+		subfolder = 'data'
+		hw = {'image': (375, 1242), 'lidar': (720, 1920)}
+		data_root = os.path.join(file_path, '../data/KITTI') 		# path containing the KITTI root 
 	else: assert False, 'error, %s dataset is not supported' % dataset
 		
 	return subfolder, det_id2str, hw, seq_eval, data_root

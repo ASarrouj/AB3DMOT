@@ -71,6 +71,33 @@ class AB3DMOT(object):
 				elif cat == 'Cyclist': 		algm, metric, thres, min_hits, max_age = 'hungar', 'dist_3d', 6, 3, 2
 				else: assert False, 'error'
 			else: assert False, 'error'
+		elif cfg.dataset == 'cepton':
+			if cfg.det_name == 'pvrcnn':				# tuned for PV-RCNN detections
+				if cat == 'Car': 			algm, metric, thres, min_hits, max_age = 'hungar', 'giou_3d', -0.2, 3, 2
+				elif cat == 'Pedestrian': 	algm, metric, thres, min_hits, max_age = 'greedy', 'giou_3d', -0.4, 1, 4 		
+				elif cat == 'Animal': 		algm, metric, thres, min_hits, max_age = 'hungar', 'dist_3d', 2, 3, 4
+				else: assert False, 'error'
+			elif cfg.det_name == 'pointrcnn':			# tuned for PointRCNN detections
+				if cat == 'Car': 			algm, metric, thres, min_hits, max_age = 'hungar', 'giou_3d', -0.2, 3, 2
+				elif cat == 'Pedestrian': 	algm, metric, thres, min_hits, max_age = 'greedy', 'giou_3d', -0.4, 1, 4 		
+				elif cat == 'Animal': 		algm, metric, thres, min_hits, max_age = 'hungar', 'dist_3d', 2, 3, 4
+				else: assert False, 'error'
+			elif cfg.det_name == 'maskrcnn':			# tuned for PointRCNN detections
+				if cat == 'Car': 			algm, metric, thres, min_hits, max_age = 'hungar', 'giou_3d', -0.2, 3, 2
+				elif cat == 'Pedestrian': 	algm, metric, thres, min_hits, max_age = 'greedy', 'giou_3d', -0.4, 1, 4 		
+				elif cat == 'Animal': 		algm, metric, thres, min_hits, max_age = 'hungar', 'dist_3d', 2, 3, 4
+				else: assert False, 'error'
+			elif cfg.det_name == 'bbox':			# tuned for PointRCNN detections
+				if cat == 'Car': 			algm, metric, thres, min_hits, max_age = 'hungar', 'giou_3d', -0.2, 3, 2
+				elif cat == 'Pedestrian': 	algm, metric, thres, min_hits, max_age = 'greedy', 'giou_3d', -0.4, 1, 4 		
+				elif cat == 'Animal': 		algm, metric, thres, min_hits, max_age = 'hungar', 'dist_3d', 2, 3, 4
+				else: assert False, 'error'
+			elif cfg.det_name == 'deprecated':			
+				if cat == 'Car': 			algm, metric, thres, min_hits, max_age = 'hungar', 'dist_3d', 6, 3, 2
+				elif cat == 'Pedestrian': 	algm, metric, thres, min_hits, max_age = 'hungar', 'dist_3d', 1, 3, 2		
+				elif cat == 'Animal': 		algm, metric, thres, min_hits, max_age = 'hungar', 'dist_3d', 6, 3, 2
+				else: assert False, 'error'
+			else: assert False, 'error'
 		elif cfg.dataset == 'nuScenes':
 			if cfg.det_name == 'centerpoint':		# tuned for CenterPoint detections
 				if cat == 'Car': 			algm, metric, thres, min_hits, max_age = 'greedy', 'giou_3d', -0.4, 1, 2
@@ -160,7 +187,7 @@ class AB3DMOT(object):
 
 		return theta_pre, theta_obs
 
-	def ego_motion_compensation(self, frame, trks):
+	def ego_motion_compensation(self, frame, trks, calib):
 		# inverse ego motion compensation, move trks from the last frame of coordinate to the current frame for matching
 		
 		from AB3DMOT_libs.kitti_oxts import get_ego_traj, egomotion_compensation_ID
@@ -169,7 +196,7 @@ class AB3DMOT(object):
 		for index in range(len(self.trackers)):
 			trk_tmp = trks[index]
 			xyz = np.array([trk_tmp.x, trk_tmp.y, trk_tmp.z]).reshape((1, -1))
-			compensated = egomotion_compensation_ID(xyz, self.calib, ego_rot_imu, ego_xyz_imu, left, right)
+			compensated = egomotion_compensation_ID(xyz, self.calib if self.calib != None else calib, ego_rot_imu, ego_xyz_imu, left, right)
 			trk_tmp.x, trk_tmp.y, trk_tmp.z = compensated[0]
 
 			# update compensated state in the Kalman filter

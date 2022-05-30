@@ -18,13 +18,16 @@ def parse_args():
     args = parser.parse_args()
     return args
 
-def main_per_cat(cfg, cat, log, ID_start):
+def main_per_cat(cfg, cat, log, ID_start, cat_detections):
 	# get data-cat-split specific path
 	result_sha = '%s_%s_%s' % (cfg.det_name, cat, cfg.split)
 	det_root = os.path.join('./data', cfg.dataset, 'detection', result_sha)
 	subfolder, det_id2str, hw, seq_eval, data_root = get_subfolder_seq(cfg.dataset, cfg.split)
 	trk_root = os.path.join(data_root, 'tracking')
 	save_dir = os.path.join(cfg.save_root, result_sha + '_H%d' % cfg.num_hypo); mkdir_if_missing(save_dir)
+
+	if cat_detections is not None:
+		seq_eval = cat_detections
 
 	# create eval dir for each hypothesis 
 	eval_dir_dict = dict()
@@ -35,9 +38,12 @@ def main_per_cat(cfg, cat, log, ID_start):
 	seq_count = 0
 	total_time, total_frames = 0.0, 0
 	for seq_name in seq_eval:
-		seq_file = os.path.join(det_root, seq_name+'.txt')
-		seq_dets, flag = load_detection(seq_file)				# load detection
-		if not flag: continue									# no detection
+		if cat_detections is not None:
+			seq_dets = seq_name
+		else:
+			seq_file = os.path.join(det_root, seq_name+'.txt')
+			seq_dets, flag = load_detection(seq_file)				# load detection
+			if not flag: continue									# no detection
 
 		# create folders for saving
 		eval_file_dict, save_trk_dir, affinity_dir, affinity_vis = \
@@ -106,7 +112,7 @@ def main_per_cat(cfg, cat, log, ID_start):
 	
 	return ID_start
 
-def main(args):
+def main(args, detect_dict):
 
 	# load config files
 	config_path = './configs/%s.yml' % args.dataset
@@ -130,7 +136,10 @@ def main(args):
 
 	# run tracking for each category
 	for cat in cfg.cat_list:
-		ID_start = main_per_cat(cfg, cat, log, ID_start)
+		if detect_dict:
+			ID_start = main_per_cat(cfg, cat, log, ID_start)
+		else:
+			ID_start = main_per_cat(cfg, cat, log, ID_start)
 
 	# combine results for every category
 	print_log('\ncombining results......', log=log)
