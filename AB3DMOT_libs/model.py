@@ -36,6 +36,7 @@ class AB3DMOT(object):
 		self.affi_process = cfg.affi_pro	# post-processing affinity
 		self.get_param(cfg, cat)
 		self.print_param()
+		self.fps = 1
 
 		# debug
 		# self.debug_id = 2
@@ -71,6 +72,7 @@ class AB3DMOT(object):
 				elif cat == 'Cyclist': 		algm, metric, thres, min_hits, max_age = 'hungar', 'dist_3d', 6, 3, 2
 				else: assert False, 'error'
 			else: assert False, 'error'
+			fps = 10
 		elif cfg.dataset == 'cepton':
 			if cfg.det_name == 'pvrcnn':				# tuned for PV-RCNN detections
 				if cat == 'Car': 			algm, metric, thres, min_hits, max_age = 'hungar', 'giou_3d', -0.2, 3, 2
@@ -89,8 +91,8 @@ class AB3DMOT(object):
 				else: assert False, 'error'
 			elif cfg.det_name == 'bbox':			# tuned for PointRCNN detections
 				if cat == 'Car': 			algm, metric, thres, min_hits, max_age = 'hungar', 'giou_3d', -0.2, 3, 2
-				elif cat == 'Pedestrian': 	algm, metric, thres, min_hits, max_age = 'greedy', 'giou_3d', -0.4, 1, 4 		
-				elif cat == 'Animal': 		algm, metric, thres, min_hits, max_age = 'hungar', 'dist_3d', 2, 3, 4
+				elif cat == 'Pedestrian': 	algm, metric, thres, min_hits, max_age = 'greedy', 'giou_3d', -0.4, 2, 4 		
+				elif cat == 'Animal': 		algm, metric, thres, min_hits, max_age = 'hungar', 'dist_3d', 2, 2, 3
 				else: assert False, 'error'
 			elif cfg.det_name == 'deprecated':			
 				if cat == 'Car': 			algm, metric, thres, min_hits, max_age = 'hungar', 'dist_3d', 6, 3, 2
@@ -98,6 +100,7 @@ class AB3DMOT(object):
 				elif cat == 'Animal': 		algm, metric, thres, min_hits, max_age = 'hungar', 'dist_3d', 6, 3, 2
 				else: assert False, 'error'
 			else: assert False, 'error'
+			fps=15
 		elif cfg.dataset == 'nuScenes':
 			if cfg.det_name == 'centerpoint':		# tuned for CenterPoint detections
 				if cat == 'Car': 			algm, metric, thres, min_hits, max_age = 'greedy', 'giou_3d', -0.4, 1, 2
@@ -131,8 +134,8 @@ class AB3DMOT(object):
 
 		# add negative due to it is the cost
 		if metric in ['dist_3d', 'dist_2d', 'm_dis']: thres *= -1	
-		self.algm, self.metric, self.thres, self.max_age, self.min_hits = \
-			algm, metric, thres, max_age, min_hits
+		self.algm, self.metric, self.thres, self.max_age, self.min_hits, self.fps = \
+			algm, metric, thres, max_age, min_hits, fps
 
 		# define max/min values for the output affinity matrix
 		if self.metric in ['dist_3d', 'dist_2d', 'm_dis']: self.max_sim, self.min_sim = 0.0, -100.
@@ -332,7 +335,7 @@ class AB3DMOT(object):
 			d = Box3D.array2bbox(trk.kf.x[:7].reshape((7, )))     # bbox location self
 			d = Box3D.bbox2array_raw(d)
 			if ((trk.time_since_update < self.max_age) and (trk.hits >= self.min_hits or self.frame_count <= self.min_hits)):      
-				results.append(np.concatenate((d, [trk.id], trk.info, trk.get_velocity().reshape(-1))).reshape(1, -1)) 		
+				results.append(np.concatenate((d, [trk.id], trk.info, trk.get_velocity().reshape(-1) * self.fps)).reshape(1, -1)) 		
 			num_trks -= 1
 
 			# deadth, remove dead tracklet
@@ -439,7 +442,6 @@ class AB3DMOT(object):
 
 		# process detection format
 		dets = self.process_dets(dets)
-
 		# tracks propagation based on velocity
 		trks = self.prediction()
 

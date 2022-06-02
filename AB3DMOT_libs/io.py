@@ -20,14 +20,14 @@ def load_detection(file):
 		return dets, True
 
 def get_frame_det(dets_all, frame):
-	
 	# get irrelevant information associated with an object, not used for associationg
 	ori_array = dets_all[dets_all[:, 0] == frame, -1].reshape((-1, 1))		# orientation
-	other_array = dets_all[dets_all[:, 0] == frame, 1:7]
-	additional_info = np.concatenate((ori_array, other_array), axis=1)		
+	other_array = dets_all[dets_all[:, 0] == frame, 1:14]
+	additional_info = np.concatenate((ori_array, other_array), axis=1)
+	print(additional_info)		
 
 	# get 3D box
-	dets = dets_all[dets_all[:, 0] == frame, 7:14]		
+	dets = dets_all[dets_all[:, 0] == frame, 14:21]		
 
 	dets_frame = {'dets': dets, 'info': additional_info}
 	return dets_frame
